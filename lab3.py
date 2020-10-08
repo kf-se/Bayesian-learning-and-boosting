@@ -44,7 +44,10 @@ def computePrior(labels, W=None):
 
     # TODO: compute the values of prior for each class!
     # ==========================
-    
+    for i in range(0, Nclasses):
+        Nk = labels==i
+        print("Nk", Nk.shape[0])
+        prior[i] = Nk.shape[0]/Npts
     # ==========================
 
     return prior
@@ -56,7 +59,7 @@ def computePrior(labels, W=None):
 #      sigma - C x d x d matrix of class covariances (sigma[i] - class i sigma)
 def mlParams(X, labels, W=None):
     assert(X.shape[0]==labels.shape[0])
-    Npts,Ndims = np.shape(X)
+    Npts, Ndims = np.shape(X)
     classes = np.unique(labels)
     Nclasses = np.size(classes)     # Nk
 
@@ -65,11 +68,13 @@ def mlParams(X, labels, W=None):
 
     mu = np.zeros((Nclasses,Ndims))
     sigma = np.zeros((Nclasses,Ndims,Ndims))
-    print(Nclasses)
+    
     # TODO: fill in the code to compute mu and sigma!
     # ==========================
     for c in classes:
         mu[c] = np.sum(X[c])/Nclasses
+        # Estimate of variance is currently biased, how does this impact the result?
+        # To unbias divide by Nclasses - 1
         sigma[c] = 1/Nclasses * np.sum((X[c] - mu[c])**2)
     # ==========================
 
@@ -83,12 +88,15 @@ def mlParams(X, labels, W=None):
 def classifyBayes(X, prior, mu, sigma):
 
     Npts = X.shape[0]
-    Nclasses,Ndims = np.shape(mu)
+    Nclasses, Ndims = np.shape(mu)
     logProb = np.zeros((Nclasses, Npts))
 
     # TODO: fill in the code to compute the log posterior logProb!
     # ==========================
-    
+    # log posterior calculated from a discriminative function 
+    for i in range(0, Nclasses):
+        sigma_d_inv = np.reciprocal(np.diag(sigma[i]))
+        logProb[i] = -0.5*np.log(np.abs(sigma[i])) - 0.5*np.multiply(np.multiply((X[i] - mu[i]), sigma_d_inv), X[i] - mu[i]) + np.log(prior[c])
     # ==========================
     
     # one possible way of finding max a-posteriori once
@@ -127,7 +135,8 @@ plotGaussian(X,labels,mu,sigma)
 
 
 # Call the `testClassifier` and `plotBoundary` functions for this part.
-
+testClassifier()
+plotBoundary()
 
 #testClassifier(BayesClassifier(), dataset='iris', split=0.7)
 
