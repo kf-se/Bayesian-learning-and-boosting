@@ -58,17 +58,19 @@ def mlParams(X, labels, W=None):
     assert(X.shape[0]==labels.shape[0])
     Npts,Ndims = np.shape(X)
     classes = np.unique(labels)
-    Nclasses = np.size(classes)
+    Nclasses = np.size(classes)     # Nk
 
     if W is None:
         W = np.ones((Npts,1))/float(Npts)
 
     mu = np.zeros((Nclasses,Ndims))
     sigma = np.zeros((Nclasses,Ndims,Ndims))
-
+    print(Nclasses)
     # TODO: fill in the code to compute mu and sigma!
     # ==========================
-    
+    for c in classes:
+        mu[c] = np.sum(X[c])/Nclasses
+        sigma[c] = 1/Nclasses * np.sum((X[c] - mu[c])**2)
     # ==========================
 
     return mu, sigma
