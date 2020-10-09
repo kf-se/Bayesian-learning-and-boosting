@@ -39,17 +39,14 @@ def computePrior(labels, W=None):
         assert(W.shape[0] == Npts)
     classes = np.unique(labels)
     Nclasses = np.size(classes)
-
     prior = np.zeros((Nclasses,1))
 
     # TODO: compute the values of prior for each class!
     # ==========================
     for i in range(0, Nclasses):
-        Nk = labels==i
-        print("Nk", Nk.shape[0])
-        prior[i] = Nk.shape[0]/Npts
+        Nk = len(np.where(labels == i)[0])
+        prior[i] = Nk/Npts
     # ==========================
-
     return prior
 
 # NOTE: you do not need to handle the W argument for this part!
@@ -94,9 +91,12 @@ def classifyBayes(X, prior, mu, sigma):
     # TODO: fill in the code to compute the log posterior logProb!
     # ==========================
     # log posterior calculated from a discriminative function 
-    for i in range(0, Nclasses):
-        sigma_d_inv = np.reciprocal(np.diag(sigma[i]))
-        logProb[i] = -0.5*np.log(np.abs(sigma[i])) - 0.5*np.multiply(np.multiply((X[i] - mu[i]), sigma_d_inv), X[i] - mu[i]) + np.log(prior[c])
+    for c in range(0, Nclasses):
+        sigma_d_inv = 1.0/np.diag(sigma[c])
+        log_det = np.log(np.prod(np.diag(sigma[c])))
+        log_prior = np.log(prior[c])
+        for i in range (0, Npts):
+            logProb[c][i] = -0.5*log_det - 0.5*np.dot(np.multiply((X[i] - mu[c]), sigma_d_inv), X[i] - mu[c]) + log_prior
     # ==========================
     
     # one possible way of finding max a-posteriori once
@@ -131,22 +131,13 @@ class BayesClassifier(object):
 
 X, labels = genBlobs(centers=5)
 mu, sigma = mlParams(X,labels)
-plotGaussian(X,labels,mu,sigma)
+#plotGaussian(X,labels,mu,sigma)
 
 
 # Call the `testClassifier` and `plotBoundary` functions for this part.
-testClassifier()
-plotBoundary()
-
-#testClassifier(BayesClassifier(), dataset='iris', split=0.7)
-
-
-
+testClassifier(BayesClassifier(), dataset='iris', split=0.7)
 #testClassifier(BayesClassifier(), dataset='vowel', split=0.7)
-
-
-
-#plotBoundary(BayesClassifier(), dataset='iris',split=0.7)
+plotBoundary(BayesClassifier(), dataset='iris',split=0.7)
 
 
 # ## Boosting functions to implement
