@@ -51,6 +51,7 @@ def computePrior(labels, W=None):
 
 # NOTE: you do not need to handle the W argument for this part!
 # in:      X - N x d matrix of N data points
+#          W - N x 1 matrix of weights
 #     labels - N vector of class labels
 # out:    mu - C x d matrix of class means (mu[i] - class i mean)
 #      sigma - C x d x d matrix of class covariances (sigma[i] - class i sigma)
@@ -69,10 +70,14 @@ def mlParams(X, labels, W=None):
     # TODO: fill in the code to compute mu and sigma!
     # ==========================
     for c in classes:
-        mu[c] = np.sum(X[c])/Nclasses
-        # Estimate of variance is currently biased, how does this impact the result?
-        # To unbias divide by Nclasses - 1
-        sigma[c] = 1/Nclasses * np.sum((X[c] - mu[c])**2)
+        if W is None:
+            mu[c] = np.sum(X[c])/Nclasses
+            # Estimate of variance is currently biased, how does this impact the result?
+            # To unbias divide by Nclasses - 1
+            sigma[c] = 1/(Nclasses) * np.sum((X[c] - mu[c])**2)
+        else:
+            mu[c] = np.sum(np.multiply(X[c], W)) / np.sum(W, axis=0)
+            sigma[c] = 1/np.sum(W, axis=0) * np.sum(W * (X[c] - mu[c])**2)
     # ==========================
 
     return mu, sigma
@@ -131,14 +136,15 @@ class BayesClassifier(object):
 
 X, labels = genBlobs(centers=5)
 mu, sigma = mlParams(X,labels)
+print("mu", mu, "sigma", sigma)
 #plotGaussian(X,labels,mu,sigma)
 
 
 # Call the `testClassifier` and `plotBoundary` functions for this part.
-testClassifier(BayesClassifier(), dataset='iris', split=0.7)
+#testClassifier(BayesClassifier(), dataset='iris', split=0.7)
 #testClassifier(BayesClassifier(), dataset='vowel', split=0.7)
-plotBoundary(BayesClassifier(), dataset='iris',split=0.7)
-
+#plotBoundary(BayesClassifier(), dataset='iris',split=0.7)
+#plotBoundary(BayesClassifier(), dataset='vowel',split=0.7)
 
 # ## Boosting functions to implement
 # 
@@ -225,7 +231,11 @@ class BoostClassifier(object):
 # ## Run some experiments
 # 
 # Call the `testClassifier` and `plotBoundary` functions for this part.
-
+X, labels = genBlobs(centers=5)
+W = np.ones((X.shape[0], 1))/X.shape[0]
+mu, sigma = mlParams(X,labels, W)
+print("mu", mu,"sigma", sigma)
+plotGaussian(X,labels,mu,sigma)
 
 #testClassifier(BoostClassifier(BayesClassifier(), T=10), dataset='iris',split=0.7)
 
