@@ -33,20 +33,24 @@ import random
 # out: prior - C x 1 vector of class priors
 def computePrior(labels, W=None):
     Npts = labels.shape[0]
-    if W is None:
-        W = np.ones((Npts,1))/Npts
-    else:
-        assert(W.shape[0] == Npts)
     classes = np.unique(labels)
     Nclasses = np.size(classes)
     prior = np.zeros((Nclasses,1))
-
-    # TODO: compute the values of prior for each class!
-    # ==========================
-    for i in range(0, Nclasses):
-        Nk = len(np.where(labels == i)[0])
-        prior[i] = Nk/Npts
-    # ==========================
+    if W is None:
+        W = np.ones((Npts,1))/Npts
+        # TODO: compute the values of prior for each class!
+        # ==========================
+        for i in range(0, Nclasses):
+            Nk = len(np.where(labels == i)[0])
+            prior[i] = Nk/Npts
+        # ==========================
+    else:
+        assert(W.shape[0] == Npts)
+        for i in range(0, Nclasses):
+            Nk = len(np.where(labels == i)[0])
+            # 
+            prior[i] = Nk/Npts**2
+    
     return prior
 
 # NOTE: you do not need to handle the W argument for this part!
@@ -134,9 +138,9 @@ class BayesClassifier(object):
 # Call `genBlobs` and `plotGaussian` to verify your estimates.
 
 
-X, labels = genBlobs(centers=5)
-mu, sigma = mlParams(X,labels)
-print("mu", mu, "sigma", sigma)
+#X, labels = genBlobs(centers=5)
+#mu, sigma = mlParams(X,labels)
+#print("mu", mu, "sigma", sigma)
 #plotGaussian(X,labels,mu,sigma)
 
 
