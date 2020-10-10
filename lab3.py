@@ -36,6 +36,7 @@ def computePrior(labels, W=None):
     classes = np.unique(labels)
     Nclasses = np.size(classes)
     prior = np.zeros((Nclasses,1))
+
     if W is None:
         W = np.ones((Npts,1))/Npts
         # TODO: compute the values of prior for each class!
@@ -47,9 +48,8 @@ def computePrior(labels, W=None):
     else:
         assert(W.shape[0] == Npts)
         for i in range(0, Nclasses):
-            Nk = len(np.where(labels == i)[0])
-            # 
-            prior[i] = Nk/Npts**2
+            ik = np.where(labels == i)[0]
+            prior[i] = np.sum(W[ik]) / np.sum(W)
     
     return prior
 
@@ -163,8 +163,7 @@ class BayesClassifier(object):
 #              alphas - (maximum) length T Python list of vote weights
 def trainBoost(base_classifier, X, labels, T=10):
     # these will come in handy later on
-    Npts,Ndims = np.shape(X)
-
+    Npts, Ndims = np.shape(X)
     classifiers = [] # append new classifiers to this list
     alphas = [] # append the vote weight of the classifiers to this list
 
@@ -174,14 +173,26 @@ def trainBoost(base_classifier, X, labels, T=10):
     for i_iter in range(0, T):
         # a new classifier can be trained like this, given the current weights
         classifiers.append(base_classifier.trainClassifier(X, labels, wCur))
-
         # do classification for each point
+        # -1 means counting from the right end, so this would be the last classifier, -2 means 2nd last classifier
         vote = classifiers[-1].classify(X)
-
         # TODO: Fill in the rest, construct the alphas etc.
-        # ==========================
-        
-        # alphas.append(alpha) # you will need to append the new alpha
+        # =========================='
+        e_t = 0
+        sign = lambda x, c: (-1, 1)[x==c]
+        # Calculate weighted error
+        for i in range(0, Npts):
+            s = sign(vote[i], labels[i])
+            e_t += wCur[i]*(1-s)
+        # Some issue with alpha
+        alpha = 0.5*(np.log(1-e_t) - np.log(e_t))
+        alphas.append(alpha) # you will need to append the new alpha
+        sign2 = lambda x, c: (np.exp(alpha), np.exp(-alpha))[x==c]
+        for i in range(0, Npts):
+            s = sign2(vote[i], labels[i])
+            wCur[i] = wCur[i] * s
+        # wCur not equals 1 all the time, sometimes nan
+        wCur /= np.sum(wCur, axis=0)
         # ==========================
         
     return classifiers, alphas
@@ -239,17 +250,18 @@ X, labels = genBlobs(centers=5)
 W = np.ones((X.shape[0], 1))/X.shape[0]
 mu, sigma = mlParams(X,labels, W)
 print("mu", mu,"sigma", sigma)
-plotGaussian(X,labels,mu,sigma)
+#plotGaussian(X,labels,mu,sigma)
+prior = computePrior(labels, W)
+print(prior)
 
-#testClassifier(BoostClassifier(BayesClassifier(), T=10), dataset='iris',split=0.7)
-
-
+testClassifier(BoostClassifier(BayesClassifier(), T=10), dataset='iris',split=0.7)
+#plotBoundary(BoostClassifier(BayesClassifier()), dataset='iris',split=0.7)
 
 #testClassifier(BoostClassifier(BayesClassifier(), T=10), dataset='vowel',split=0.7)
 
 
 
-#plotBoundary(BoostClassifier(BayesClassifier()), dataset='iris',split=0.7)
+
 
 
 # Now repeat the steps with a decision tree classifier.
