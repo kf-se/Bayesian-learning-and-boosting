@@ -107,7 +107,6 @@ def classifyBayes(X, prior, mu, sigma):
         for i in range (0, Npts):
             logProb[c][i] = -0.5*log_det - 0.5*np.dot(np.multiply((X[i] - mu[c]), sigma_d_inv), X[i] - mu[c]) + log_prior
     # ==========================
-    
     # one possible way of finding max a-posteriori once
     # you have computed the log posterior
     h = np.argmax(logProb,axis=0)
@@ -169,7 +168,6 @@ def trainBoost(base_classifier, X, labels, T=10):
 
     # The weights for the first iteration
     wCur = np.ones((Npts,1))/float(Npts)
-
     for i_iter in range(0, T):
         # a new classifier can be trained like this, given the current weights
         classifiers.append(base_classifier.trainClassifier(X, labels, wCur))
@@ -178,23 +176,25 @@ def trainBoost(base_classifier, X, labels, T=10):
         vote = classifiers[-1].classify(X)
         # TODO: Fill in the rest, construct the alphas etc.
         # =========================='
-        e_t = 0
-        sign = lambda x, c: (-1, 1)[x==c]
         # Calculate weighted error
-        for i in range(0, Npts):
-            s = sign(vote[i], labels[i])
-            e_t += wCur[i]*(1-s)
-        # Some issue with alpha
+        weightsum = np.sum(wCur, axis=0)
+        e_t = weightsum
+        correctvote = np.where(vote == labels)[0]
+        for i in correctvote:
+            e_t -= wCur[i]
+        # Calculate alpha
         alpha = 0.5*(np.log(1-e_t) - np.log(e_t))
         alphas.append(alpha) # you will need to append the new alpha
-        sign2 = lambda x, c: (np.exp(alpha), np.exp(-alpha))[x==c]
-        for i in range(0, Npts):
-            s = sign2(vote[i], labels[i])
-            wCur[i] = wCur[i] * s
-        # wCur not equals 1 all the time, sometimes nan
+        # Update weights
+        falsevote = np.where(vote != labels)[0]
+        for i in correctvote:
+            wCur[i] = wCur[i] * np.exp(-alpha)
+        for i in falsevote:
+            wCur[i] = wCur[i] * np.exp(alpha)
+        # Normalize weights
         wCur /= np.sum(wCur, axis=0)
         # ==========================
-        
+
     return classifiers, alphas
 
 # in:       X - N x d matrix of N data points
@@ -211,11 +211,16 @@ def classifyBoost(X, classifiers, alphas, Nclasses):
         return classifiers[0].classify(X)
     else:
         votes = np.zeros((Npts,Nclasses))
-
+        print(votes)
         # TODO: implement classificiation when we have trained several classifiers!
         # here we can do it by filling in the votes vector with weighted votes
         # ==========================
-        
+        # NOTE: I do not know how to do this??!!
+        for t in range(0, Ncomps):
+            # log posterior calculated from a discriminative function 
+            for c in range(0, Nclasses):
+                for i in range (0, Npts):
+                    votes[c] = alphas[t]*classifiers[t].classify(X)
         # ==========================
 
         # one way to compute yPred after accumulating the votes
@@ -255,7 +260,7 @@ prior = computePrior(labels, W)
 print(prior)
 
 testClassifier(BoostClassifier(BayesClassifier(), T=10), dataset='iris',split=0.7)
-#plotBoundary(BoostClassifier(BayesClassifier()), dataset='iris',split=0.7)
+plotBoundary(BoostClassifier(BayesClassifier()), dataset='iris',split=0.7)
 
 #testClassifier(BoostClassifier(BayesClassifier(), T=10), dataset='vowel',split=0.7)
 
