@@ -21,7 +21,7 @@ from scipy import misc
 from imp import reload
 from labfuns import *
 import random
-
+import alternate as alt
 
 # ## Bayes classifier functions to implement
 # 
@@ -49,8 +49,8 @@ def computePrior(labels, W=None):
         assert(W.shape[0] == Npts)
         for i in range(0, Nclasses):
             ik = np.where(labels == i)[0]
-            prior[i] = np.sum(W[ik]) / np.sum(W)
-    
+            prior[i] = np.sum(W[ik])
+        prior /= np.sum(W)
     return prior
 
 # NOTE: you do not need to handle the W argument for this part!
@@ -74,14 +74,15 @@ def mlParams(X, labels, W=None):
     # TODO: fill in the code to compute mu and sigma!
     # ==========================
     for c in classes:
-        if W is None:
-            mu[c] = np.sum(X[c])/Nclasses
-            # Estimate of variance is currently biased, how does this impact the result?
-            # To unbias divide by Nclasses - 1
-            sigma[c] = 1/(Nclasses) * np.sum((X[c] - mu[c])**2)
-        else:
-            mu[c] = np.sum(np.multiply(X[c], W)) / np.sum(W, axis=0)
-            sigma[c] = 1/np.sum(W, axis=0) * np.sum(W * (X[c] - mu[c])**2)
+        index = np.where(labels == c)[0]
+        mu[c] = np.sum(X[index,:]*W[index], axis=0)/np.sum(W[index])
+
+        # Estimate of variance is currently biased, how does this impact the result?
+        # To unbias divide by Nclasses - 1
+        xd = X[index,:] - mu[c]
+        xdd = xd**2 * W[index]
+        mean = 1/np.sum(W[index], axis=0) * np.sum(xdd, axis=0)
+        sigma[c] =  np.diag(mean)
     # ==========================
 
     return mu, sigma
@@ -135,12 +136,21 @@ class BayesClassifier(object):
 # ## Test the Maximum Likelihood estimates
 # 
 # Call `genBlobs` and `plotGaussian` to verify your estimates.
+#X, labels = genBlobs(centers=5)
+#mu, sigma = mlParams(X,labels, W=None)
+#prior = computePrior(labels, W=None)
+#h = classifyBayes(X, prior, mu, sigma)
 
+#muA, sigmaA = alt.mlParamsA(X,labels, W=None)
+#priorA = alt.computePriorA(labels, W=None)
+#hA = alt.classifyBayesA(X, priorA, muA, sigmaA)
 
-X, labels = genBlobs(centers=5)
-mu, sigma = mlParams(X,labels)
-print("mu", mu, "sigma", sigma)
-plotGaussian(X,labels,mu,sigma)
+#print("prior", prior.shape, "priorA", priorA.shape)
+#print("mu", mu.shape, "muA", muA.shape, "sigma", sigma.shape, "sigmaA", sigmaA.shape)
+#print("h", h, "hA", hA)
+#print("prior", prior, "priorA", priorA)
+#print("mu", mu, "muA", muA, "sigma", sigma, "sigmaA", sigmaA)
+#plotGaussian(X,labels,mu,sigma)
 
 
 # Call the `testClassifier` and `plotBoundary` functions for this part.
@@ -211,20 +221,20 @@ def classifyBoost(X, classifiers, alphas, Nclasses):
         return classifiers[0].classify(X)
     else:
         votes = np.zeros((Npts,Nclasses))
-        print(votes)
         # TODO: implement classificiation when we have trained several classifiers!
         # here we can do it by filling in the votes vector with weighted votes
         # ==========================
         # NOTE: I do not know how to do this??!!
         for t in range(0, Ncomps):
-            # log posterior calculated from a discriminative function 
-            for c in range(0, Nclasses):
-                for i in range (0, Npts):
-                    votes[c] = alphas[t]*classifiers[t].classify(X)
+            h = classifiers[t].classify(X)
+            for i in range(0, Npts):
+                c = h[i]
+                votes[i][c] = alphas[t]*h[i]
+                
         # ==========================
-
         # one way to compute yPred after accumulating the votes
-        return np.argmax(votes,axis=1)
+        ret = np.argmax(votes,axis=1)
+        return ret
 
 
 # The implemented functions can now be summarized another classifer, the `BoostClassifier` class. This class enables boosting different types of classifiers by initializing it with the `base_classifier` argument. No need to add anything here.
@@ -257,7 +267,6 @@ class BoostClassifier(object):
 #print("mu", mu,"sigma", sigma)
 #plotGaussian(X,labels,mu,sigma)
 #prior = computePrior(labels, W)
-#print(prior)
 
 #testClassifier(BoostClassifier(BayesClassifier(), T=10), dataset='iris',split=0.7)
 #plotBoundary(BoostClassifier(BayesClassifier()), dataset='iris',split=0.7)
