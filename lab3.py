@@ -84,7 +84,6 @@ def mlParams(X, labels, W=None):
         mean = 1/np.sum(W[index], axis=0) * np.sum(xdd, axis=0)
         sigma[c] =  np.diag(mean)
     # ==========================
-
     return mu, sigma
 
 # in:      X - N x d matrix of M data points
@@ -115,8 +114,6 @@ def classifyBayes(X, prior, mu, sigma):
 
 
 # The implemented functions can now be summarized into the `BayesClassifier` class, which we will use later to test the classifier, no need to add anything else here:
-
-
 # NOTE: no need to touch this
 class BayesClassifier(object):
     def __init__(self):
@@ -136,28 +133,29 @@ class BayesClassifier(object):
 # ## Test the Maximum Likelihood estimates
 # 
 # Call `genBlobs` and `plotGaussian` to verify your estimates.
-#X, labels = genBlobs(centers=5)
-#mu, sigma = mlParams(X,labels, W=None)
-#prior = computePrior(labels, W=None)
-#h = classifyBayes(X, prior, mu, sigma)
+def assignment1():
+    X, labels = genBlobs(centers=5)
+    mu, sigma = mlParams(X,labels, W=None)
+    prior = computePrior(labels, W=None)
+    h = classifyBayes(X, prior, mu, sigma)
 
-#muA, sigmaA = alt.mlParamsA(X,labels, W=None)
-#priorA = alt.computePriorA(labels, W=None)
-#hA = alt.classifyBayesA(X, priorA, muA, sigmaA)
+    #muA, sigmaA = alt.mlParamsA(X,labels, W=None)
+    #priorA = alt.computePriorA(labels, W=None)
+    #hA = alt.classifyBayesA(X, priorA, muA, sigmaA)
 
-#print("prior", prior.shape, "priorA", priorA.shape)
-#print("mu", mu.shape, "muA", muA.shape, "sigma", sigma.shape, "sigmaA", sigmaA.shape)
-#print("h", h, "hA", hA)
-#print("prior", prior, "priorA", priorA)
-#print("mu", mu, "muA", muA, "sigma", sigma, "sigmaA", sigmaA)
-#plotGaussian(X,labels,mu,sigma)
+    #print("prior", prior.shape, "priorA", priorA.shape)
+    #print("mu", mu.shape, "muA", muA.shape, "sigma", sigma.shape, "sigmaA", sigmaA.shape)
+    #print("h", h, "hA", hA)
+    #print("prior", prior, "priorA", priorA)
+    #print("mu", mu, "muA", muA, "sigma", sigma, "sigmaA", sigmaA)
+    plotGaussian(X,labels,mu,sigma)
 
 
-# Call the `testClassifier` and `plotBoundary` functions for this part.
-#testClassifier(BayesClassifier(), dataset='iris', split=0.7)
-#testClassifier(BayesClassifier(), dataset='vowel', split=0.7)
-#plotBoundary(BayesClassifier(), dataset='iris',split=0.7)
-#plotBoundary(BayesClassifier(), dataset='vowel',split=0.7)
+    # Call the `testClassifier` and `plotBoundary` functions for this part.
+    testClassifier(BayesClassifier(), dataset='iris', split=0.7)
+    testClassifier(BayesClassifier(), dataset='vowel', split=0.7)
+    plotBoundary(BayesClassifier(), dataset='iris',split=0.7)
+    plotBoundary(BayesClassifier(), dataset='vowel',split=0.7)
 
 # ## Boosting functions to implement
 # 
@@ -261,47 +259,35 @@ class BoostClassifier(object):
 # ## Run some experiments
 # 
 # Call the `testClassifier` and `plotBoundary` functions for this part.
-#X, labels = genBlobs(centers=5)
-#W = np.ones((X.shape[0], 1))/X.shape[0]
-#mu, sigma = mlParams(X,labels, W)
-#print("mu", mu,"sigma", sigma)
-#plotGaussian(X,labels,mu,sigma)
-#prior = computePrior(labels, W)
+def assignment_adaboost():
+    testClassifier(BoostClassifier(BayesClassifier(), T=10), dataset='iris',split=0.7)
+    plotBoundary(BoostClassifier(BayesClassifier()), dataset='iris',split=0.7)
 
-testClassifier(BoostClassifier(BayesClassifier(), T=10), dataset='iris',split=0.7)
-plotBoundary(BoostClassifier(BayesClassifier()), dataset='iris',split=0.7)
-
-#testClassifier(BoostClassifier(BayesClassifier(), T=10), dataset='vowel',split=0.7)
-
-
-
-
-
+    testClassifier(BoostClassifier(BayesClassifier(), T=10), dataset='vowel',split=0.7)
+    plotBoundary(BoostClassifier(BayesClassifier()), dataset='vowel',split=0.7)
 
 # Now repeat the steps with a decision tree classifier.
+#assignment_adaboost()
 
+def assignment6_iris():
+    testClassifier(DecisionTreeClassifier(), dataset='iris', split=0.7)
+    plotBoundary(DecisionTreeClassifier(), dataset='iris',split=0.7)
+    testClassifier(BoostClassifier(DecisionTreeClassifier(), T=10), dataset='iris',split=0.7)
+    plotBoundary(BoostClassifier(DecisionTreeClassifier(), T=10), dataset='iris',split=0.7)
 
-#testClassifier(DecisionTreeClassifier(), dataset='iris', split=0.7)
-
-
-
-#testClassifier(BoostClassifier(DecisionTreeClassifier(), T=10), dataset='iris',split=0.7)
-
-
-
-#testClassifier(DecisionTreeClassifier(), dataset='vowel',split=0.7)
-
-
-
-#testClassifier(BoostClassifier(DecisionTreeClassifier(), T=10), dataset='vowel',split=0.7)
-
-
-
-#plotBoundary(DecisionTreeClassifier(), dataset='iris',split=0.7)
+#assignment6_iris()
+def assignment6_vowel():
+    testClassifier(DecisionTreeClassifier(), dataset='vowel',split=0.7)
+    plotBoundary(DecisionTreeClassifier(), dataset='vowel',split=0.7)
+    testClassifier(BoostClassifier(DecisionTreeClassifier(), T=10), dataset='vowel',split=0.7)
+    plotBoundary(BoostClassifier(DecisionTreeClassifier(), T=10), dataset='vowel',split=0.7)
+assignment6_vowel()
 
 
 
-#plotBoundary(BoostClassifier(DecisionTreeClassifier(), T=10), dataset='iris',split=0.7)
+
+
+
 
 
 # ## Bonus: Visualize faces classified using boosted decision trees
