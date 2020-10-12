@@ -229,7 +229,7 @@ def classifyBoost(X, classifiers, alphas, Nclasses):
             h = classifiers[t].classify(X)
             for i in range(0, Npts):
                 c = h[i]
-                votes[i][c] = alphas[t]*h[i]
+                votes[i][c] += alphas[t]#*h[i]
                 
         # ==========================
         # one way to compute yPred after accumulating the votes
@@ -268,8 +268,8 @@ class BoostClassifier(object):
 #plotGaussian(X,labels,mu,sigma)
 #prior = computePrior(labels, W)
 
-#testClassifier(BoostClassifier(BayesClassifier(), T=10), dataset='iris',split=0.7)
-#plotBoundary(BoostClassifier(BayesClassifier()), dataset='iris',split=0.7)
+testClassifier(BoostClassifier(BayesClassifier(), T=10), dataset='iris',split=0.7)
+plotBoundary(BoostClassifier(BayesClassifier()), dataset='iris',split=0.7)
 
 #testClassifier(BoostClassifier(BayesClassifier(), T=10), dataset='vowel',split=0.7)
 
