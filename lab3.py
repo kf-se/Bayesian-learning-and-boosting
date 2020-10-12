@@ -137,16 +137,16 @@ class BayesClassifier(object):
 # Call `genBlobs` and `plotGaussian` to verify your estimates.
 
 
-#X, labels = genBlobs(centers=5)
-#mu, sigma = mlParams(X,labels)
-#print("mu", mu, "sigma", sigma)
-#plotGaussian(X,labels,mu,sigma)
+X, labels = genBlobs(centers=5)
+mu, sigma = mlParams(X,labels)
+print("mu", mu, "sigma", sigma)
+plotGaussian(X,labels,mu,sigma)
 
 
 # Call the `testClassifier` and `plotBoundary` functions for this part.
-#testClassifier(BayesClassifier(), dataset='iris', split=0.7)
+testClassifier(BayesClassifier(), dataset='iris', split=0.7)
 #testClassifier(BayesClassifier(), dataset='vowel', split=0.7)
-#plotBoundary(BayesClassifier(), dataset='iris',split=0.7)
+plotBoundary(BayesClassifier(), dataset='iris',split=0.7)
 #plotBoundary(BayesClassifier(), dataset='vowel',split=0.7)
 
 # ## Boosting functions to implement
@@ -251,16 +251,16 @@ class BoostClassifier(object):
 # ## Run some experiments
 # 
 # Call the `testClassifier` and `plotBoundary` functions for this part.
-X, labels = genBlobs(centers=5)
-W = np.ones((X.shape[0], 1))/X.shape[0]
-mu, sigma = mlParams(X,labels, W)
-print("mu", mu,"sigma", sigma)
+#X, labels = genBlobs(centers=5)
+#W = np.ones((X.shape[0], 1))/X.shape[0]
+#mu, sigma = mlParams(X,labels, W)
+#print("mu", mu,"sigma", sigma)
 #plotGaussian(X,labels,mu,sigma)
-prior = computePrior(labels, W)
-print(prior)
+#prior = computePrior(labels, W)
+#print(prior)
 
-testClassifier(BoostClassifier(BayesClassifier(), T=10), dataset='iris',split=0.7)
-plotBoundary(BoostClassifier(BayesClassifier()), dataset='iris',split=0.7)
+#testClassifier(BoostClassifier(BayesClassifier(), T=10), dataset='iris',split=0.7)
+#plotBoundary(BoostClassifier(BayesClassifier()), dataset='iris',split=0.7)
 
 #testClassifier(BoostClassifier(BayesClassifier(), T=10), dataset='vowel',split=0.7)
 
