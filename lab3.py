@@ -16,6 +16,8 @@
 # In Jupyter, select the cell below and press `ctrl + enter` to import the needed libraries.
 # Check out `labfuns.py` if you are interested in the details.
 
+# https://docs.google.com/document/d/1iKF-mgdXH50j8uEFIL0W8gdUnybbJf-T2o1f2deild4/edit?usp=sharing
+
 import numpy as np
 from scipy import misc
 from imp import reload
@@ -84,7 +86,6 @@ def mlParams(X, labels, W=None):
         mean = 1/np.sum(W[index], axis=0) * np.sum(xdd, axis=0)
         sigma[c] =  np.diag(mean)
     # ==========================
-
     return mu, sigma
 
 # in:      X - N x d matrix of M data points
@@ -115,8 +116,6 @@ def classifyBayes(X, prior, mu, sigma):
 
 
 # The implemented functions can now be summarized into the `BayesClassifier` class, which we will use later to test the classifier, no need to add anything else here:
-
-
 # NOTE: no need to touch this
 class BayesClassifier(object):
     def __init__(self):
@@ -155,9 +154,10 @@ class BayesClassifier(object):
 
 # Call the `testClassifier` and `plotBoundary` functions for this part.
 testClassifier(BayesClassifier(), dataset='iris', split=0.7)
-#testClassifier(BayesClassifier(), dataset='vowel', split=0.7)
 plotBoundary(BayesClassifier(), dataset='iris',split=0.7)
-#plotBoundary(BayesClassifier(), dataset='vowel',split=0.7)
+
+testClassifier(BayesClassifier(), dataset='vowel', split=0.7)
+plotBoundary(BayesClassifier(), dataset='vowel',split=0.7)
 
 # ## Boosting functions to implement
 # 
@@ -261,47 +261,36 @@ class BoostClassifier(object):
 # ## Run some experiments
 # 
 # Call the `testClassifier` and `plotBoundary` functions for this part.
-#X, labels = genBlobs(centers=5)
-#W = np.ones((X.shape[0], 1))/X.shape[0]
-#mu, sigma = mlParams(X,labels, W)
-#print("mu", mu,"sigma", sigma)
-#plotGaussian(X,labels,mu,sigma)
-#prior = computePrior(labels, W)
+def assignment_adaboost():
+    testClassifier(BoostClassifier(BayesClassifier(), T=10), dataset='iris',split=0.7)
+    plotBoundary(BoostClassifier(BayesClassifier()), dataset='iris',split=0.7)
 
-testClassifier(BoostClassifier(BayesClassifier(), T=10), dataset='iris',split=0.7)
-plotBoundary(BoostClassifier(BayesClassifier()), dataset='iris',split=0.7)
-
-#testClassifier(BoostClassifier(BayesClassifier(), T=10), dataset='vowel',split=0.7)
-
-
-
-
-
+    testClassifier(BoostClassifier(BayesClassifier(), T=10), dataset='vowel',split=0.7)
+    plotBoundary(BoostClassifier(BayesClassifier()), dataset='vowel',split=0.7)
 
 # Now repeat the steps with a decision tree classifier.
+assignment_adaboost()
 
+def assignment6_iris():
+    testClassifier(DecisionTreeClassifier(), dataset='iris', split=0.7)
+    plotBoundary(DecisionTreeClassifier(), dataset='iris',split=0.7)
+    testClassifier(BoostClassifier(DecisionTreeClassifier(), T=10), dataset='iris',split=0.7)
+    plotBoundary(BoostClassifier(DecisionTreeClassifier(), T=10), dataset='iris',split=0.7)
 
-#testClassifier(DecisionTreeClassifier(), dataset='iris', split=0.7)
+#assignment6_iris()
+def assignment6_vowel():
+    testClassifier(DecisionTreeClassifier(), dataset='vowel',split=0.7)
+    plotBoundary(DecisionTreeClassifier(), dataset='vowel',split=0.7)
+    testClassifier(BoostClassifier(DecisionTreeClassifier(), T=10), dataset='vowel',split=0.7)
+    plotBoundary(BoostClassifier(DecisionTreeClassifier(), T=10), dataset='vowel',split=0.7)
 
-
-
-#testClassifier(BoostClassifier(DecisionTreeClassifier(), T=10), dataset='iris',split=0.7)
-
-
-
-#testClassifier(DecisionTreeClassifier(), dataset='vowel',split=0.7)
-
-
-
-#testClassifier(BoostClassifier(DecisionTreeClassifier(), T=10), dataset='vowel',split=0.7)
-
-
-
-#plotBoundary(DecisionTreeClassifier(), dataset='iris',split=0.7)
+#assignment6_vowel()
 
 
 
-#plotBoundary(BoostClassifier(DecisionTreeClassifier(), T=10), dataset='iris',split=0.7)
+
+
+
 
 
 # ## Bonus: Visualize faces classified using boosted decision trees
